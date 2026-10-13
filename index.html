@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RizeTAG | Çayluktan Yaylaya Yoldaşun</title>
+<meta name="description" content="Rize ve Doğu Karadeniz için paylaşımlı yolculuk ve taksi platformu. Beni Al Da!">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        tea: { 50: "#f1f8ee", 100: "#dcefd3", 200: "#b9dfa8", 300: "#8fca74", 400: "#66b04a", 500: "#4a9333", 600: "#38752a", 700: "#2d5d24", 800: "#254a20", 900: "#1b3518" },
+        coal: { 700: "#2b3033", 800: "#1f2326", 900: "#14171a", 950: "#0c0e10" },
+        sun: { 300: "#ffe27a", 400: "#ffd43b", 500: "#fcc419", 600: "#e6ab00" },
+        lime: { 300: "#c5f27a", 400: "#aef04d" }
+      },
+      keyframes: {
+        radar: { "0%": { transform: "scale(0.4)", opacity: "0.9" }, "100%": { transform: "scale(2.4)", opacity: "0" } },
+        shake: { "0%,100%": { transform: "translateX(0)" }, "20%,60%": { transform: "translateX(-6px)" }, "40%,80%": { transform: "translateX(6px)" } },
+        floaty: { "0%,100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(-10px)" } },
+        pop: { "0%": { transform: "scale(0.9)", opacity: "0" }, "100%": { transform: "scale(1)", opacity: "1" } },
+        drive: { "0%": { left: "-10%" }, "100%": { left: "100%" } }
+      },
+      animation: {
+        radar: "radar 1.8s ease-out infinite",
+        shake: "shake 0.45s ease-in-out",
+        floaty: "floaty 4s ease-in-out infinite",
+        pop: "pop 0.25s ease-out",
+        drive: "drive 4s linear infinite"
+      }
+    }
+  }
+};
+</script>
+<style>
+html { scroll-behavior: smooth; }
+body { background: #0c0e10; }
+.tea-bg {
+  background-color: #14171a;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(74,147,51,0.35), transparent 40%),
+    radial-gradient(circle at 85% 10%, rgba(255,212,59,0.18), transparent 35%),
+    radial-gradient(circle at 70% 90%, rgba(174,240,77,0.15), transparent 40%),
+    repeating-radial-gradient(ellipse at 50% 120%, rgba(74,147,51,0.14) 0, rgba(74,147,51,0.14) 2px, transparent 2px, transparent 26px);
+}
+.glass { background: rgba(255,255,255,0.06); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+.chip { transition: all .15s ease; }
+.chip:hover { transform: translateY(-1px); }
+.veh-input:checked + .veh-card { border-color: #ffd43b; background: rgba(255,212,59,0.1); box-shadow: 0 0 0 2px rgba(255,212,59,0.35); }
+.route-card { transition: transform .2s ease, box-shadow .2s ease; }
+.route-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -18px rgba(74,147,51,0.7); }
+input[type=range] { accent-color: #ffd43b; }
+.no-scroll { overflow: hidden; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #0c0e10; }
+::-webkit-scrollbar-thumb { background: #2d5d24; border-radius: 10px; }
+</style>
+</head>
+<body class="font-sans text-gray-100 antialiased">
+
+<header class="fixed top-0 inset-x-0 z-40 bg-coal-950/85 backdrop-blur border-b border-white/10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <a href="#top" class="flex items-center gap-3">
+      <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-sun-400 to-lime-400 flex items-center justify-center text-coal-900 font-black text-lg shadow-lg">R</span>
+      <span class="leading-tight">
+        <span class="block text-xl font-extrabold tracking-tight">Rize<span class="text-sun-400">TAG</span></span>
+        <span class="block text-[10px] sm:text-xs text-tea-300 -mt-0.5">Çayluktan Yaylaya Yoldaşun</span>
+      </span>
+    </a>
+    <nav class="hidden md:flex items-center gap-7 text-sm font-medium">
+      <a href="#yolculuk" class="hover:text-sun-400 transition">Yolculuk Bul</a>
+      <a href="#surucu" class="hover:text-sun-400 transition">Sürücü Ol</a>
+      <a href="#ucret" class="hover:text-sun-400 transition">Ücret Hesapla</a>
+      <a href="#guvenlik" class="hover:text-sun-400 transition">Güvenlik</a>
+    </nav>
+    <div class="flex items-center gap-2">
+      <button id="authBtn" class="hidden sm:inline-flex px-4 py-2 rounded-full bg-sun-400 text-coal-900 font-bold text-sm hover:bg-sun-300 transition">Giriş Yap / Kaydol</button>
+      <button id="menuBtn" class="md:hidden w-10 h-10 rounded-lg glass flex items-center justify-center" aria-label="Menü">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden border-t border-white/10 bg-coal-950">
+    <div class="px-4 py-4 flex flex-col gap-3 text-sm font-medium">
+      <a href="#yolculuk" class="mobile-link py-2">Yolculuk Bul</a>
+      <a href="#surucu" class="mobile-link py-2">Sürücü Ol</a>
+      <a href="#ucret" class="mobile-link py-2">Ücret Hesapla</a>
+      <a href="#guvenlik" class="mobile-link py-2">Güvenlik</a>
+      <button id="authBtnMobile" class="mt-1 px-4 py-3 rounded-full bg-sun-400 text-coal-900 font-bold">Giriş Yap / Kaydol</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="tea-bg pt-28 pb-16 sm:pb-24 relative overflow-hidden">
+  <div class="absolute -right-10 top-40 text-[180px] opacity-10 select-none animate-floaty hidden lg:block">🍃</div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-10 items-start">
+    <div class="pt-4 lg:pt-10">
+      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-xs sm:text-sm text-lime-300 font-semibold">
+        <span class="w-2 h-2 rounded-full bg-lime-400 animate-pulse"></span> Rize, Ardeşen, Pazar, Fındıklı, İkizdere, Ayder'de yolda
+      </span>
+      <h1 class="mt-5 text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
+        Beni Al Da,<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-sun-400 to-lime-400">Horon Gibi Gidelum!</span>
+      </h1>
+      <p class="mt-5 text-gray-300 text-base sm:text-lg max-w-xl">
+        Karadeniz'in virajlı yollarını iyi bilen şoförlerle taksi çağır, ya da yoldaş bul, masrafı paylaş. Çay molası dahil, lahana torbası serbest uşağum.
+      </p>
+      <div class="mt-8 grid grid-cols-3 gap-3 max-w-md">
+        <div class="glass rounded-2xl p-4 text-center"><div class="text-2xl font-black text-sun-400" data-count="12400">0</div><div class="text-xs text-gray-400 mt-1">Mutlu yolcu</div></div>
+        <div class="glass rounded-2xl p-4 text-center"><div class="text-2xl font-black text-lime-400" data-count="860">0</div><div class="text-xs text-gray-400 mt-1">Sürücü abi/abla</div></div>
+        <div class="glass rounded-2xl p-4 text-center"><div class="text-2xl font-black text-sun-400">4.8</div><div class="text-xs text-gray-400 mt-1">Ortalama puan</div></div>
+      </div>
+    </div>
+
+    <div id="yolculuk" class="scroll-mt-24">
+      <div class="rounded-3xl bg-white text-coal-900 shadow-2xl shadow-black/50 overflow-hidden">
+        <div class="grid grid-cols-2 bg-coal-900 p-1.5 gap-1.5 m-3 rounded-2xl">
+          <button id="tabRider" class="py-3 rounded-xl text-sm font-bold bg-sun-400 text-coal-900 transition">🚖 Yolculuk Yap</button>
+          <button id="tabDriver" class="py-3 rounded-xl text-sm font-bold text-gray-300 hover:text-white transition">🚗 Yolcu Al (Sürücü)</button>
+        </div>
+
+        <div id="riderPanel" class="px-5 pb-6 pt-2">
+          <div class="relative">
+            <div class="space-y-3">
+              <label class="block">
+                <span class="text-xs font-semibold text-tea-700">Nereden Çıkıyun?</span>
+                <div class="mt-1 flex items-center gap-2 rounded-xl border-2 border-gray-200 focus-within:border-tea-500 px-3">
+                  <span class="w-3 h-3 rounded-full bg-tea-600"></span>
+                  <input id="fromInput" list="placeList" autocomplete="off" placeholder="Rize Merkez" class="w-full py-3 outline-none bg-transparent font-medium">
+                </div>
+              </label>
+              <label class="block">
+                <span class="text-xs font-semibold text-tea-700">Nereye Uşuğum?</span>
+                <div class="mt-1 flex items-center gap-2 rounded-xl border-2 border-gray-200 focus-within:border-tea-500 px-3">
+                  <span class="w-3 h-3 rounded-sm bg-sun-500"></span>
+                  <input id="toInput" list="placeList" autocomplete="off" placeholder="Ayder Yaylası" class="w-full py-3 outline-none bg-transparent font-medium">
+                </div>
+              </label>
+            </div>
+            <button id="swapBtn" type="button" title="Yer değiştir" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-coal-900 text-sun-400 flex items-center justify-center shadow hover:rotate-180 transition duration-300">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+            </button>
+          </div>
+          <datalist id="placeList"></datalist>
+
+          <div class="mt-3">
+            <div class="text-xs font-semibold text-gray-500 mb-2">Hızlı Seçim</div>
+            <div id="quickChips" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <div class="mt-5">
+            <div class="text-xs font-semibold text-gray-500 mb-2">Araç Tipi</div>
+            <div class="grid grid-cols-3 gap-2">
+              <label class="cursor-pointer">
+                <input type="radio" name="veh" value="std" class="veh-input sr-only" checked>
+                <div class="veh-card h-full border-2 border-gray-200 rounded-xl p-2.5 text-center transition">
+                  <div class="text-2xl">🚕</div>
+                  <div class="text-xs font-bold mt-1 leading-tight">Standart Taksi</div>
+                  <div class="text-[10px] text-gray-500">Sana özel</div>
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="veh" value="tag" class="veh-input sr-only">
+                <div class="veh-card h-full border-2 border-gray-200 rounded-xl p-2.5 text-center transition">
+                  <div class="text-2xl">🚐</div>
+                  <div class="text-xs font-bold mt-1 leading-tight">Paylaşımlı Yoldaş (TAG)</div>
+                  <div class="text-[10px] text-gray-500">Cebe dost</div>
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="veh" value="yayla" class="veh-input sr-only">
+                <div class="veh-card h-full border-2 border-gray-200 rounded-xl p-2.5 text-center transition">
+                  <div class="text-2xl">🛻</div>
+                  <div class="text-xs font-bold mt-1 leading-tight">4x4 Yayla Canavarı</div>
+                  <div class="text-[10px] text-gray-500">Çamur dinlemez</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="mt-4 flex items-center justify-between rounded-xl bg-gray-100 px-4 py-2.5">
+            <span class="text-sm font-semibold">Kaç kişisiniz?</span>
+            <div class="flex items-center gap-3">
+              <button id="paxMinus" type="button" class="w-8 h-8 rounded-full bg-coal-900 text-white font-bold">−</button>
+              <span id="paxVal" class="w-5 text-center font-extrabold">1</span>
+              <button id="paxPlus" type="button" class="w-8 h-8 rounded-full bg-coal-900 text-white font-bold">+</button>
+            </div>
+          </div>
+
+          <div id="estimateBox" class="mt-4 rounded-2xl bg-coal-900 text-white p-4 hidden">
+            <div class="flex items-end justify-between">
+              <div>
+                <div class="text-xs text-gray-400">Tahmini ücret</div>
+                <div class="text-3xl font-black text-sun-400" id="estPrice">0 ₺</div>
+                <div class="text-xs text-lime-300" id="estSub"></div>
+              </div>
+              <div class="text-right">
+                <div class="text-xs text-gray-400">Tahmini varış</div>
+                <div class="text-xl font-extrabold" id="estTime">0 dk</div>
+                <div class="text-xs text-gray-400" id="estKm"></div>
+              </div>
+            </div>
+            <div class="mt-3 h-1.5 rounded-full bg-white/10 relative overflow-hidden">
+              <div class="absolute inset-y-0 w-1/4 bg-gradient-to-r from-transparent via-sun-400 to-transparent animate-drive"></div>
+            </div>
+            <div class="mt-2 text-[11px] text-gray-400 italic" id="estJoke"></div>
+          </div>
+
+          <div id="formError" class="hidden mt-3 text-sm font-semibold text-red-600 bg-red-50 rounded-lg px-3 py-2"></div>
+
+          <button id="callBtn" class="mt-4 w-full py-4 rounded-2xl bg-gradient-to-r from-sun-400 to-lime-400 text-coal-900 font-black text-lg hover:brightness-105 active:scale-[0.99] transition shadow-lg shadow-sun-400/30">
+            Çağır Da Gelsun! 🚖
+          </button>
+          <p class="text-center text-[11px] text-gray-500 mt-2">Horon Gibi Hızlı Geliyir. Sis yoksa tabii.</p>
+        </div>
+
+        <div id="driverPanel" class="hidden px-5 pb-6 pt-2">
+          <div class="flex items-center justify-between rounded-2xl bg-coal-900 text-white p-4">
+            <div>
+              <div class="text-xs text-gray-400">Durum</div>
+              <div id="driverStatus" class="font-extrabold text-lg">Arabam Boş Gezeyirum 😴</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-gray-400">Bugünkü kazanç</div>
+              <div id="earnTotal" class="text-2xl font-black text-sun-400">0 ₺</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mt-4">
+            <label class="block">
+              <span class="text-xs font-semibold text-tea-700">Nereden?</span>
+              <select id="drvFrom" class="mt-1 w-full rounded-xl border-2 border-gray-200 focus:border-tea-500 outline-none px-3 py-3 font-medium bg-white"></select>
+            </label>
+            <label class="block">
+              <span class="text-xs font-semibold text-tea-700">Nereye?</span>
+              <select id="drvTo" class="mt-1 w-full rounded-xl border-2 border-gray-200 focus:border-tea-500 outline-none px-3 py-3 font-medium bg-white"></select>
+            </label>
+            <label class="block">
+              <span class="text-xs font-semibold text-tea-700">Boş koltuk</span>
+              <select id="drvSeats" class="mt-1 w-full rounded-xl border-2 border-gray-200 focus:border-tea-500 outline-none px-3 py-3 font-medium bg-white">
+                <option>1</option><option>2</option><option selected>3</option><option>4</option>
+              </select>
+            </label>
+            <label class="block">
+              <span class="text-xs font-semibold text-tea-700">Ne zaman çıkıyun?</span>
+              <input id="drvTime" type="time" value="17:30" class="mt-1 w-full rounded-xl border-2 border-gray-200 focus:border-tea-500 outline-none px-3 py-3 font-medium bg-white">
+            </label>
+          </div>
+
+          <button id="goOnlineBtn" class="mt-4 w-full py-4 rounded-2xl bg-coal-900 text-sun-400 font-black text-lg hover:bg-coal-800 active:scale-[0.99] transition">
+            Yola Çık 🛣️
+          </button>
+
+          <div id="requestsWrap" class="hidden mt-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-bold">Yolcu İstekleri</span>
+              <span class="text-xs text-tea-700 font-semibold" id="reqCount">0 bekleyen</span>
+            </div>
+            <div id="requestList" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+            <div class="mt-3">
+              <div class="flex justify-between text-xs text-gray-500 mb-1"><span>Benzin parası</span><span id="fuelText">0 / 600 ₺</span></div>
+              <div class="h-2.5 rounded-full bg-gray-200 overflow-hidden"><div id="fuelBar" class="h-full w-0 bg-gradient-to-r from-tea-500 to-sun-400 transition-all duration-500"></div></div>
+            </div>
+          </div>
+          <div id="driverHint" class="mt-4 text-xs text-gray-500 text-center">Boş gezme, yola çık; yolcular seni bulur.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="rotalar" class="py-16 sm:py-24 bg-coal-950 scroll-mt-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="max-w-2xl">
+      <span class="text-sun-400 text-sm font-bold tracking-wider uppercase">Güzergâh & Popüler Rotalar</span>
+      <h2 class="mt-2 text-3xl sm:text-4xl font-black">Yollar Bizim, Virajlar Ezber</h2>
+      <p class="mt-3 text-gray-400">En çok gidilen hatlarda kişi başı paylaşım ücretleri. Karta tıkla, bilgiler yukarıya kendiliğinden dolsun.</p>
+    </div>
+    <div id="routeGrid" class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+  </div>
+</section>
+
+<section id="ucret" class="py-16 sm:py-24 tea-bg scroll-mt-16">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6">
+    <div class="text-center max-w-2xl mx-auto">
+      <span class="text-sun-400 text-sm font-bold tracking-wider uppercase">Ücret Hesapla</span>
+      <h2 class="mt-2 text-3xl sm:text-4xl font-black">Cebinde Kaç Kuruş Var, Bir Bakalum</h2>
+      <p class="mt-3 text-gray-300">Mesafeyi kaydır, kişi sayısını seç; üç araç tipinin ücretini yan yana gör.</p>
+    </div>
+    <div class="mt-10 glass rounded-3xl p-5 sm:p-8">
+      <div class="grid md:grid-cols-2 gap-6 items-center">
+        <div>
+          <div class="flex justify-between text-sm font-semibold"><span>Mesafe</span><span class="text-sun-400" id="calcKmLabel">35 km</span></div>
+          <input id="calcKm" type="range" min="3" max="150" value="35" class="w-full mt-2">
+          <div class="flex justify-between text-sm font-semibold mt-5"><span>Kişi sayısı</span><span class="text-sun-400" id="calcPaxLabel">2 kişi</span></div>
+          <input id="calcPax" type="range" min="1" max="4" value="2" class="w-full mt-2">
+          <label class="mt-5 flex items-center gap-3 cursor-pointer select-none">
+            <input id="calcRain" type="checkbox" class="w-5 h-5 accent-yellow-400">
+            <span class="text-sm">Yağmur yağıyor, sis var <span class="text-gray-400">(Rize'de ne zaman yağmıyor ki, yine de işaretle)</span></span>
+          </label>
+        </div>
+        <div class="grid grid-cols-1 gap-3" id="calcResults"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="surucu" class="py-16 sm:py-24 bg-coal-950 scroll-mt-16">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-10 items-center">
+    <div>
+      <span class="text-sun-400 text-sm font-bold tracking-wider uppercase">Sürücü Ol</span>
+      <h2 class="mt-2 text-3xl sm:text-4xl font-black">Boş Gezme, Benzin Parasını Çıkar</h2>
+      <p class="mt-4 text-gray-400">Çarşıya inerken, yaylaya çıkarken, işe gidip gelirken boş koltukları doldur. Çay molan bizden, kazancın senin.</p>
+      <ul class="mt-6 space-y-3 text-gray-200">
+        <li class="flex gap-3"><span class="text-lime-400">✔</span> Haftalık ödeme, komisyon sadece %10</li>
+        <li class="flex gap-3"><span class="text-lime-400">✔</span> Puanın 4.5 üstündeyse yayla hatları sana açık</li>
+        <li class="flex gap-3"><span class="text-lime-400">✔</span> Yolcu gelmezse çay bizden, söz</li>
+        <li class="flex gap-3"><span class="text-lime-400">✔</span> Sis uyarısı ve virajlı yol bildirimleri</li>
+      </ul>
+    </div>
+    <form id="driverForm" class="rounded-3xl bg-white text-coal-900 p-6 sm:p-8 shadow-2xl space-y-4" novalidate>
+      <h3 class="text-2xl font-black">Hızlı Kayıt</h3>
+      <label class="block">
+        <span class="text-xs font-semibold text-tea-700">Adun Soyadun</span>
+        <input id="dName" type="text" placeholder="Dursun Çaykara" class="mt-1 w-full rounded-xl border-2 border-gray-200 focus:border-tea-500 outline-none px-3 py-3">
+      </label>
+      <div class="grid grid-cols-2 gap-3">
+        <label class="block">
+          <span class="text-xs font-semibold text-tea-700">Plaka</span>
+          <input id="dPlate" type="text" placeholder="53 ABC 053" maxlength="12" class="mt-1 w-full rounded-xl border-2 border-gray-200 focus:border-tea-500 outline-none px-3 py-3 uppercase">
+        </label>
+        <label class="block">
+          <span class="text-xs font-semibold text-tea-700">Araç Modeli</span>
+          <input id="dModel" type="text" placeholder="Fiat Doblo 2018" class="mt-1 w-full rounded-xl border-2 border-gray-200 focus:border-tea-500 outline-none px-3 py-3">
+        </label>
+      </div>
+      <label class="block">
+        <span class="text-xs font-semibold text-tea-700">Güzergâh</span>
+        <select id="dRoute" class="mt-1 w-full rounded-xl border-2 border-gray-200 focus:border-tea-500 outline-none px-3 py-3 bg-white"></select>
+      </label>
+      <label class="flex items-start gap-3 text-sm text-gray-600">
+        <input id="dKvkk" type="checkbox" class="mt-1 w-4 h-4 accent-green-700">
+        <span>KVKK aydınlatma metnini okudum, sürücü şartlarını kabul ediyorum.</span>
+      </label>
+      <div id="dError" class="hidden text-sm font-semibold text-red-600 bg-red-50 rounded-lg px-3 py-2"></div>
+      <button type="submit" class="w-full py-4 rounded-2xl bg-coal-900 text-sun-400 font-black text-lg hover:bg-coal-800 transition">Kayıt Ol Uşağum 🚗</button>
+    </form>
+  </div>
+</section>
+
+<section id="guvenlik" class="py-16 sm:py-24 bg-gradient-to-b from-coal-950 to-coal-900 scroll-mt-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="max-w-2xl">
+      <span class="text-sun-400 text-sm font-bold tracking-wider uppercase">Güvenlik</span>
+      <h2 class="mt-2 text-3xl sm:text-4xl font-black">Ciddi İşleri Şakayla Anlatuyuruz</h2>
+      <p class="mt-3 text-gray-400">Güvenlik şaka kaldırmaz ama biz anlatırken biraz gülümsetiriz.</p>
+    </div>
+    <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="glass rounded-2xl p-6">
+        <div class="text-3xl">🌀</div>
+        <h3 class="mt-3 font-bold text-lg">Virajlar</h3>
+        <p class="mt-2 text-sm text-gray-400">Virajlarda tutunmayı bilmeyen binmesun. Kemer takılı, el tutamakta, mide sağlam olsun.</p>
+      </div>
+      <div class="glass rounded-2xl p-6">
+        <div class="text-3xl">🧺</div>
+        <h3 class="mt-3 font-bold text-lg">Bagaj Bildirimi</h3>
+        <p class="mt-2 text-sm text-gray-400">Bagajda lahana ya da çay torbası varsa baştan söyleyin. Sürpriz yük sevmeyiz.</p>
+      </div>
+      <div class="glass rounded-2xl p-6">
+        <div class="text-3xl">⭐</div>
+        <h3 class="mt-3 font-bold text-lg">Puan Şartı</h3>
+        <p class="mt-2 text-sm text-gray-400">Puanı 4.5 altı şoför yaylaya çıkamaz. Yayla yolu bahane kabul etmez.</p>
+      </div>
+      <div class="glass rounded-2xl p-6">
+        <div class="text-3xl">📍</div>
+        <h3 class="mt-3 font-bold text-lg">Canlı Takip</h3>
+        <p class="mt-2 text-sm text-gray-400">Yolculuğunu anneye, babaya, komşuya gönderebilirsin. Merak eden çok olur, bilirsun.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="yorumlar" class="py-16 sm:py-24 bg-coal-900">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="text-center max-w-2xl mx-auto">
+      <span class="text-sun-400 text-sm font-bold tracking-wider uppercase">Yolcu Yorumları</span>
+      <h2 class="mt-2 text-3xl sm:text-4xl font-black">Binen Anlatsın, Biz Dinleyelum</h2>
+    </div>
+    <div id="testiGrid" class="mt-10 grid md:grid-cols-2 lg:grid-cols-4 gap-5"></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="bg-coal-950 border-t border-white/10 pt-12 pb-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 grid md:grid-cols-3 gap-8">
+    <div>
+      <div class="flex items-center gap-3">
+        <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-sun-400 to-lime-400 flex items-center justify-center text-coal-900 font-black">R</span>
+        <span class="text-xl font-extrabold">Rize<span class="text-sun-400">TAG</span></span>
+      </div>
+      <p class="mt-3 text-sm text-gray-400">Çayluktan Yaylaya Yoldaşun. Rize ve Doğu Karadeniz için yerel paylaşımlı yolculuk platformu.</p>
+    </div>
+    <div>
+      <h4 class="font-bold">Bölgesel Destek Hattı</h4>
+      <p class="mt-3 text-2xl font-black text-sun-400">0 (464) 555 53 53</p>
+      <p class="text-sm text-gray-400 mt-1">Her gün 07:00 - 23:00. Sis varsa biraz geç açabiliriz.</p>
+    </div>
+    <div>
+      <h4 class="font-bold">Hızlı Bağlantılar</h4>
+      <ul class="mt-3 space-y-2 text-sm text-gray-400">
+        <li><a href="#yolculuk" class="hover:text-sun-400">Yolculuk Bul</a></li>
+        <li><a href="#surucu" class="hover:text-sun-400">Sürücü Ol</a></li>
+        <li><a href="#ucret" class="hover:text-sun-400">Ücret Hesapla</a></li>
+        <li><a href="#guvenlik" class="hover:text-sun-400">Güvenlik</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 mt-10 pt-6 border-t border-white/10">
+    <p class="text-xs text-gray-500 leading-relaxed">
+      KVKK ve Yasal Bilgilendirme: Bu sayfa bir tanıtım ve simülasyon arayüzüdür. Gösterilen ücretler, süreler ve sürücüler tahminidir. Girilen kişisel veriler 6698 sayılı KVKK kapsamında yalnızca hizmetin sunulması amacıyla işlenir, üçüncü kişilerle paylaşılmaz. Ticari yolcu taşımacılığı için gerekli belge ve izinlerin sürücüler tarafından bulundurulması zorunludur.
+    </p>
+    <p class="text-xs text-gray-500 mt-3">© 2026 RizeTAG. Tüm hakları saklıdır. Rize'de sevgiyle, çay eşliğinde yapıldı.</p>
+  </div>
+</footer>
+
+<div id="callModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white text-coal-900 rounded-3xl overflow-hidden animate-pop">
+    <div id="searchView" class="p-8 text-center">
+      <div class="relative w-40 h-40 mx-auto flex items-center justify-center">
+        <span class="absolute inset-0 rounded-full bg-tea-400/50 animate-radar"></span>
+        <span class="absolute inset-0 rounded-full bg-tea-400/40 animate-radar" style="animation-delay:.6s"></span>
+        <span class="absolute inset-0 rounded-full bg-tea-400/30 animate-radar" style="animation-delay:1.2s"></span>
+        <span class="relative w-20 h-20 rounded-full bg-coal-900 text-4xl flex items-center justify-center">🚖</span>
+      </div>
+      <h3 id="searchTitle" class="mt-6 text-xl font-black">Şoförlere dürtüyirum uşağum...</h3>
+      <p id="searchSub" class="mt-2 text-sm text-gray-500">Yakındaki araçlara bakıyuruz</p>
+      <button id="cancelSearch" class="mt-6 text-sm font-semibold text-gray-500 underline">Vazgeçtum</button>
+    </div>
+    <div id="foundView" class="hidden">
+      <div class="bg-gradient-to-r from-tea-600 to-tea-500 text-white p-5">
+        <div class="text-xs uppercase tracking-wider text-lime-300 font-bold">Bulduk Uşağum!</div>
+        <div id="foundTitle" class="text-xl font-black mt-1"></div>
+      </div>
+      <div class="p-5">
+        <div class="flex items-center gap-4">
+          <div id="drvAvatar" class="w-16 h-16 rounded-full bg-sun-400 text-coal-900 text-2xl font-black flex items-center justify-center"></div>
+          <div class="flex-1">
+            <div id="drvName" class="font-extrabold text-lg"></div>
+            <div id="drvCar" class="text-sm text-gray-500"></div>
+            <div class="mt-1 inline-flex items-center gap-2">
+              <span id="drvPlate" class="px-2 py-0.5 rounded bg-coal-900 text-white text-xs font-bold tracking-wider"></span>
+              <span id="drvRate" class="text-sm font-bold text-sun-600"></span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 grid grid-cols-3 gap-2 text-center">
+          <div class="rounded-xl bg-gray-100 p-3"><div class="text-[11px] text-gray-500">Geliş</div><div id="foundEta" class="font-black"></div></div>
+          <div class="rounded-xl bg-gray-100 p-3"><div class="text-[11px] text-gray-500">Ücret</div><div id="foundPrice" class="font-black"></div></div>
+          <div class="rounded-xl bg-gray-100 p-3"><div class="text-[11px] text-gray-500">Varış</div><div id="foundArrive" class="font-black"></div></div>
+        </div>
+        <div id="foundRoute" class="mt-3 text-sm text-gray-600 text-center"></div>
+        <div id="trackWrap" class="hidden mt-4">
+          <div class="relative h-3 rounded-full bg-gray-200 overflow-hidden">
+            <div id="trackBar" class="absolute inset-y-0 left-0 w-0 bg-gradient-to-r from-tea-500 to-sun-400 transition-all duration-1000"></div>
+          </div>
+          <div id="trackText" class="mt-2 text-center text-sm font-semibold text-tea-700"></div>
+        </div>
+        <div id="foundBtns" class="mt-5 grid grid-cols-2 gap-3">
+          <button id="declineBtn" class="py-3 rounded-xl border-2 border-gray-200 font-bold text-gray-600 hover:bg-gray-50">Vazgeçtum</button>
+          <button id="acceptBtn" class="py-3 rounded-xl bg-coal-900 text-sun-400 font-black hover:bg-coal-800">Tamam, Bekleyirum</button>
+        </div>
+        <button id="doneBtn" class="hidden mt-5 w-full py-3 rounded-xl bg-coal-900 text-sun-400 font-black">Sağ ol Dursun Abi, Kapat</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="authModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white text-coal-900 rounded-3xl p-6 sm:p-8 animate-pop relative">
+    <button id="authClose" class="absolute right-4 top-4 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 font-bold" aria-label="Kapat">✕</button>
+    <div class="grid grid-cols-2 gap-1 bg-gray-100 rounded-xl p-1 mr-10">
+      <button id="authTabLogin" class="py-2 rounded-lg text-sm font-bold bg-white shadow">Giriş Yap</button>
+      <button id="authTabReg" class="py-2 rounded-lg text-sm font-bold text-gray-500">Kaydol</button>
+    </div>
+    <h3 id="authTitle" class="mt-5 text-2xl font-black">Hoş Geldun Uşağum!</h3>
+    <p id="authSub" class="text-sm text-gray-500 mt-1">Telefonunla gir, çay demlenirken hazır olursun.</p>
+    <form id="authForm" class="mt-5 space-y-3" novalidate>
+      <label id="authNameWrap" class="hidden block">
+        <span class="text-xs font-semibold text-tea-700">Adun Soyadun</span>
+        <input id="authName" type="text" placeholder="Ayşe Karadeniz" class="mt-1 w-full rounded-xl border-2 border-gray-200 focus:border-tea-500 outline-none px-3 py-3">
+      </label>
+      <label class="block">
+        <span class="text-xs font-semibold text-tea-700">Telefon</span>
+        <input id="authPhone" type="tel" placeholder="05xx xxx xx xx" maxlength="14" class="mt-1 w-full rounded-xl border-2 border-gray-200 focus:border-tea-500 outline-none px-3 py-3">
+      </label>
+      <label class="block">
+        <span class="text-xs font-semibold text-tea-700">Şifre</span>
+        <input id="authPass" type="password" placeholder="En az 4 karakter" class="mt-1 w-full rounded-xl border-2 border-gray-200 focus:border-tea-500 outline-none px-3 py-3">
+      </label>
+      <div id="authError" class="hidden text-sm font-semibold text-red-600 bg-red-50 rounded-lg px-3 py-2"></div>
+      <button id="authSubmit" type="submit" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-sun-400 to-lime-400 text-coal-900 font-black text-lg">İçeri Gir</button>
+    </form>
+  </div>
+</div>
+
+<div id="infoModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="w-full max-w-sm bg-white text-coal-900 rounded-3xl p-8 text-center animate-pop">
+    <div id="infoIcon" class="text-5xl"></div>
+    <h3 id="infoTitle" class="mt-3 text-2xl font-black"></h3>
+    <p id="infoText" class="mt-2 text-gray-600"></p>
+    <button id="infoClose" class="mt-6 w-full py-3 rounded-xl bg-coal-900 text-sun-400 font-black">Tamam</button>
+  </div>
+</div>
+
+<div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-6 z-[60] hidden max-w-[90%] px-5 py-3 rounded-full bg-coal-900 text-white text-sm font-semibold shadow-2xl border border-white/10"></div>
+
+<script>
+(function () {
+  var places = [
+    { name: "Rize Merkez", lat: 41.0201, lng: 40.5234 },
+    { name: "Çayeli", lat: 41.0886, lng: 40.7253 },
+    { name: "Pazar", lat: 41.1783, lng: 40.8872 },
+    { name: "Ardeşen", lat: 41.1919, lng: 40.9889 },
+    { name: "Fındıklı", lat: 41.2717, lng: 41.1494 },
+    { name: "İkizdere", lat: 40.7828, lng: 40.5639 },
+    { name: "Ayder Yaylası", lat: 40.9672, lng: 41.0094 },
+    { name: "Rize-Artvin Havalimanı", lat: 41.1597, lng: 40.8625 },
+    { name: "Trabzon Havalimanı", lat: 40.9951, lng: 39.7897 }
+  ];
+
+  var vehicles = {
+    std: { label: "Standart Taksi", base: 40, perKm: 13, speed: 52, shared: false },
+    tag: { label: "Paylaşımlı Yoldaş (TAG)", base: 15, perKm: 5.5, speed: 44, shared: true },
+    yayla: { label: "4x4 Yayla Canavarı", base: 90, perKm: 24, speed: 38, shared: false }
+  };
+
+  var routes = [
+    { from: "Rize-Artvin Havalimanı", to: "Rize Merkez", icon: "✈️", note: "Uçaktan iner inmez çay hazır." },
+    { from: "Trabzon Havalimanı", to: "Rize Merkez", icon: "🛫", note: "Sahil yolunda deniz manzaralı yolculuk." },
+    { from: "Ardeşen", to: "Ayder Yaylası", icon: "🏔️", note: "Yayla havası, virajlar bedava." },
+    { from: "Rize Merkez", to: "Fındıklı", icon: "🌊", note: "Karadeniz sahil hattı, fındık kokulu." },
+    { from: "Rize Merkez", to: "İkizdere", icon: "🍃", note: "Çay bahçelerinin arasından dağ yoluna." },
+    { from: "Pazar", to: "Çayeli", icon: "🚐", note: "Gündelik hat, sabah akşam sık sefer." }
+  ];
+
+  var testimonials = [
+    { name: "Fatma Teyze", where: "Pazar", text: "Dursun Abi bizi Ayder'e 20 dakkada çıkardı, horon müzikleri de cabası. Mideme tek viraj bile dokunmadı.", stars: 5 },
+    { name: "Hasan Reis", where: "Ardeşen", text: "Bagajdaki çay torbalarına hiç laf etmedi, 5 yıldız. Hatta bir tanesini de kendi aldı, hesaba katmadım.", stars: 5 },
+    { name: "Elif", where: "İkizdere", text: "Paylaşımlı yoldaşla gittum, benzin parasının yarısını çıkardım. Yolda üç kişiyle tanıştım, biri kuzenim çıktı.", stars: 5 },
+    { name: "Mehmet Ali", where: "Çayeli", text: "Sis vardı, şoför abi önce yavaşladı sonra çay ısmarladı. Güvenli, samimi, hesaplı. Başka ne isterum?", stars: 4 }
+  ];
+
+  var driverNames = ["Dursun Abi", "Recep Usta", "Zeynep Abla", "Kemal Reis", "Osman Amca", "Hatice Abla", "Temel Usta", "Ramazan Abi"];
+  var driverCars = ["Fiat Doblo", "Renault Clio", "Ford Courier", "Toyota Hilux", "Dacia Duster", "Hyundai i20", "Volkswagen Caddy", "Mitsubishi L200"];
+  var passengerNames = ["Fatma Teyze", "Hüseyin", "Ayşe", "Mustafa Abi", "Sevgül", "Cemal", "Nurten Abla", "Yusuf"];
+
+  var state = {
+    pax: 1,
+    lastFocus: "from",
+    searchTimer: null,
+    trackTimer: null,
+    currentTrip: null,
+    online: false,
+    reqTimer: null,
+    earnings: 0,
+    requests: [],
+    reqId: 0,
+    authMode: "login",
+    user: null
+  };
+
+  function $(id) { return document.getElementById(id); }
+
+  function placeByName(n) {
+    var q = (n || "").trim().toLocaleLowerCase("tr");
+    for (var i = 0; i < places.length; i++) {
+      if (places[i].name.toLocaleLowerCase("tr") === q) return places[i];
+    }
+    return null;
+  }
+
+  function haversine(a, b) {
+    var R = 6371;
+    var dLat = (b.lat - a.lat) * Math.PI / 180;
+    var dLng = (b.lng - a.lng) * Math.PI / 180;
+    var s = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+  }
+
+  function roadKm(a, b) {
+    return Math.max(2, Math.round(haversine(a, b) * 1.4));
+  }
+
+  function roundTo5(n) {
+    return Math.max(5, Math.round(n / 5) * 5);
+  }
+
+  function fare(km, type, pax, rain) {
+    var v = vehicles[type];
+    var mult = rain ? 1.1 : 1;
+    var single = roundTo5((v.base + km * v.perKm) * mult);
+    var total = v.shared ? single * pax : single;
+    var minutes = Math.round(km / v.speed * 60 * (rain ? 1.15 : 1) + (v.shared ? 6 : 2));
+    return { perPerson: v.shared ? single : roundTo5(single / pax), total: total, minutes: minutes, shared: v.shared };
+  }
+
+  function fmtTL(n) {
+    return n.toLocaleString("tr-TR") + " ₺";
+  }
+
+  function fmtTime(min) {
+    if (min < 60) return min + " dk";
+    var h = Math.floor(min / 60);
+    var m = min % 60;
+    return h + " sa " + (m < 10 ? "0" : "") + m + " dk";
+  }
+
+  function toast(msg) {
+    var t = $("toast");
+    t.textContent = msg;
+    t.classList.remove("hidden");
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(function () { t.classList.add("hidden"); }, 3200);
+  }
+
+  function openModal(id) {
+    $(id).classList.remove("hidden");
+    document.body.classList.add("no-scroll");
+  }
+
+  function closeModal(id) {
+    $(id).classList.add("hidden");
+    var anyOpen = ["callModal", "authModal", "infoModal"].some(function (m) { return !$(m).classList.contains("hidden"); });
+    if (!anyOpen) document.body.classList.remove("no-scroll");
+  }
+
+  function showInfo(icon, title, text) {
+    $("infoIcon").textContent = icon;
+    $("infoTitle").textContent = title;
+    $("infoText").textContent = text;
+    openModal("infoModal");
+  }
+
+  function selectedVeh() {
+    return document.querySelector("input[name=veh]:checked").value;
+  }
+
+  function buildLists() {
+    var dl = $("placeList");
+    var chips = $("quickChips");
+    var opts = places.map(function (p) { return "<option value=\"" + p.name + "\"></option>"; }).join("");
+    dl.innerHTML = opts;
+    var chipPlaces = ["Rize Merkez", "Ardeşen", "Çayeli", "Pazar", "Fındıklı", "İkizdere", "Ayder Yaylası"];
+    chips.innerHTML = chipPlaces.map(function (n) {
+      return "<button type=\"button\" data-place=\"" + n + "\" class=\"chip px-3 py-1.5 rounded-full bg-tea-50 text-tea-800 border border-tea-200 text-xs font-bold hover:bg-tea-100\">" + n + "</button>";
+    }).join("");
+    var selHtml = places.map(function (p) { return "<option>" + p.name + "</option>"; }).join("");
+    $("drvFrom").innerHTML = selHtml;
+    $("drvTo").innerHTML = selHtml;
+    $("drvTo").selectedIndex = 6;
+    var routeOpts = routes.map(function (r) { return "<option>" + r.from + " → " + r.to + "</option>"; }).join("");
+    $("dRoute").innerHTML = routeOpts + "<option>Başka bir güzergâh</option>";
+  }
+
+  function updateEstimate() {
+    var a = placeByName($("fromInput").value);
+    var b = placeByName($("toInput").value);
+    var box = $("estimateBox");
+    if (!a || !b || a.name === b.name) {
+      box.classList.add("hidden");
+      return null;
+    }
+    var km = roadKm(a, b);
+    var type = selectedVeh();
+    var f = fare(km, type, state.pax, false);
+    $("estPrice").textContent = fmtTL(f.total);
+    $("estSub").textContent = f.shared ? "Kişi başı " + fmtTL(f.perPerson) + " x " + state.pax + " kişi" : (state.pax > 1 ? "Kişi başı yaklaşık " + fmtTL(f.perPerson) : "Tek yolcu için");
+    $("estTime").textContent = fmtTime(f.minutes);
+    $("estKm").textContent = km + " km";
+    var jokes = {
+      std: "Şoför abi yolu bilir, sen sadece camdan manzaraya bak.",
+      tag: "Yolda iki kişi daha binebilir, hemşehri çıkma ihtimali yüksek.",
+      yayla: "Çamur, sis, patika dinlemez. Yayla Canavarı sağlam gider."
+    };
+    $("estJoke").textContent = jokes[type];
+    box.classList.remove("hidden");
+    return { a: a, b: b, km: km, type: type, f: f };
+  }
+
+  function showFormError(msg) {
+    var e = $("formError");
+    e.textContent = msg;
+    e.classList.remove("hidden");
+    e.classList.remove("animate-shake");
+    void e.offsetWidth;
+    e.classList.add("animate-shake");
+  }
+
+  function setPlaceFromChip(name) {
+    var from = $("fromInput");
+    var to = $("toInput");
+    if (state.lastFocus === "to") {
+      to.value = name;
+    } else if (!from.value) {
+      from.value = name;
+    } else if (!to.value) {
+      to.value = name;
+    } else {
+      to.value = name;
+    }
+    $("formError").classList.add("hidden");
+    updateEstimate();
+  }
+
+  function switchTab(which) {
+    var rider = which === "rider";
+    $("riderPanel").classList.toggle("hidden", !rider);
+    $("driverPanel").classList.toggle("hidden", rider);
+    $("tabRider").className = "py-3 rounded-xl text-sm font-bold transition " + (rider ? "bg-sun-400 text-coal-900" : "text-gray-300 hover:text-white");
+    $("tabDriver").className = "py-3 rounded-xl text-sm font-bold transition " + (rider ? "text-gray-300 hover:text-white" : "bg-sun-400 text-coal-900");
+  }
+
+  function rand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function pick(arr) {
+    return arr[rand(0, arr.length - 1)];
+  }
+
+  function randomPlate() {
+    var letters = "ABCDEFGHJKLMNPRSTUVYZ";
+    var l = "";
+    var n = rand(1, 2);
+    for (var i = 0; i < n + 1; i++) l += letters.charAt(rand(0, letters.length - 1));
+    return "53 " + l + " " + rand(10, 999);
+  }
+
+  function startCall() {
+    var info = updateEstimate();
+    if (!$("fromInput").value.trim() || !$("toInput").value.trim()) {
+      showFormError("Uşağum, nereden nereye gidecaksun? İki yeri de yazman lazım.");
+      return;
+    }
+    if (!info) {
+      if (placeByName($("fromInput").value) && placeByName($("toInput").value)) {
+        showFormError("Aynı yerden aynı yere mi gidecaksun? Olmaz böyle şey, bir yer değiştir.");
+      } else {
+        showFormError("Bu yeri tanımadım uşağum. Listeden ya da hızlı seçim butonlarından seç.");
+      }
+      return;
+    }
+    $("formError").classList.add("hidden");
+    state.currentTrip = info;
+    $("searchView").classList.remove("hidden");
+    $("foundView").classList.add("hidden");
+    $("trackWrap").classList.add("hidden");
+    $("foundBtns").classList.remove("hidden");
+    $("doneBtn").classList.add("hidden");
+    $("trackBar").style.width = "0%";
+    $("searchTitle").textContent = "Şoförlere dürtüyirum uşağum...";
+    $("searchSub").textContent = "Yakındaki araçlara bakıyuruz";
+    openModal("callModal");
+    var msgs = [
+      ["Çay demlenene kadar bulurum...", "Rize'nin sokaklarına sesleniyuruz"],
+      ["Bir abi yola çıkmış galiba...", "Viraj sayısı hesaplanıyor"],
+      ["Neredeyse bulduk uşağum!", "Son bir kontrol, bir dakka"]
+    ];
+    var i = 0;
+    clearInterval(state.searchTimer);
+    state.searchTimer = setInterval(function () {
+      if (i < msgs.length) {
+        $("searchTitle").textContent = msgs[i][0];
+        $("searchSub").textContent = msgs[i][1];
+        i++;
+      }
+    }, 800);
+    setTimeout(function () {
+      if ($("callModal").classList.contains("hidden") || !state.currentTrip) return;
+      clearInterval(state.searchTimer);
+      showFound();
+    }, 2800);
+  }
+
+  function showFound() {
+    var t = state.currentTrip;
+    var name = pick(driverNames);
+    var car = pick(driverCars);
+    var eta = rand(3, 9);
+    var rate = (4.5 + Math.random() * 0.5).toFixed(1);
+    if (t.type === "yayla") {
+      car = pick(["Toyota Hilux", "Mitsubishi L200", "Dacia Duster 4x4"]);
+    }
+    t.driver = name;
+    t.eta = eta;
+    $("foundTitle").textContent = name + " sana doğru yola çıktı!";
+    $("drvAvatar").textContent = name.charAt(0);
+    $("drvName").textContent = name;
+    $("drvCar").textContent = car;
+    $("drvPlate").textContent = randomPlate();
+    $("drvRate").textContent = "★ " + rate;
+    $("foundEta").textContent = eta + " dk";
+    $("foundPrice").textContent = fmtTL(t.f.total);
+    var arrive = new Date(Date.now() + (eta + t.f.minutes) * 60000);
+    $("foundArrive").textContent = arrive.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+    $("foundRoute").textContent = t.a.name + " → " + t.b.name + " · " + vehicles[t.type].label;
+    $("searchView").classList.add("hidden");
+    $("foundView").classList.remove("hidden");
+  }
+
+  function acceptTrip() {
+    var t = state.currentTrip;
+    $("foundBtns").classList.add("hidden");
+    $("trackWrap").classList.remove("hidden");
+    var steps = [
+      "Dursun Abi viraja girdi, tutun!",
+      "Çay bahçelerinin yanından geçiyuruz...",
+      "Gelmek üzere, hazırlan uşağum!",
+      "Kapıdayuk, çık da bin!"
+    ];
+    steps[0] = t.driver + " yola çıktı, horon gibi geliyir!";
+    var p = 0;
+    $("trackBar").style.width = "5%";
+    $("trackText").textContent = steps[0];
+    clearInterval(state.trackTimer);
+    state.trackTimer = setInterval(function () {
+      p++;
+      $("trackBar").style.width = Math.min(100, 5 + p * 32) + "%";
+      if (p < steps.length) $("trackText").textContent = steps[p];
+      if (p >= steps.length - 1) {
+        clearInterval(state.trackTimer);
+        $("doneBtn").classList.remove("hidden");
+        toast("Şoför geldi, kapıda bekleyir! 🚖");
+      }
+    }, 1300);
+  }
+
+  function cancelCall() {
+    clearInterval(state.searchTimer);
+    clearInterval(state.trackTimer);
+    state.currentTrip = null;
+    closeModal("callModal");
+  }
+
+  function buildRoutes() {
+    var grid = $("routeGrid");
+    grid.innerHTML = routes.map(function (r, idx) {
+      var a = placeByName(r.from);
+      var b = placeByName(r.to);
+      var km = roadKm(a, b);
+      var f = fare(km, "tag", 1, false);
+      var fs = fare(km, "std", 1, false);
+      return "<article class=\"route-card rounded-3xl bg-coal-800 border border-white/10 p-6 flex flex-col\">" +
+        "<div class=\"flex items-center justify-between\"><span class=\"text-3xl\">" + r.icon + "</span><span class=\"text-xs font-bold px-2.5 py-1 rounded-full bg-tea-700 text-lime-300\">" + km + " km · " + fmtTime(f.minutes) + "</span></div>" +
+        "<h3 class=\"mt-4 text-xl font-extrabold leading-snug\">" + r.from + "<span class=\"text-sun-400\"> → </span>" + r.to + "</h3>" +
+        "<p class=\"mt-2 text-sm text-gray-400 flex-1\">" + r.note + "</p>" +
+        "<div class=\"mt-5 flex items-end justify-between\"><div><div class=\"text-xs text-gray-500\">Kişi başı paylaşım</div><div class=\"text-2xl font-black text-sun-400\">" + fmtTL(f.perPerson) + "</div></div><div class=\"text-right\"><div class=\"text-xs text-gray-500\">Taksi</div><div class=\"font-bold text-gray-300\">" + fmtTL(fs.total) + "</div></div></div>" +
+        "<button data-route=\"" + idx + "\" class=\"route-btn mt-5 w-full py-3 rounded-xl bg-white/10 hover:bg-sun-400 hover:text-coal-900 font-bold transition\">Bu Hatta Beni Al Da!</button>" +
+        "</article>";
+    }).join("");
+  }
+
+  function applyRoute(idx) {
+    var r = routes[idx];
+    $("fromInput").value = r.from;
+    $("toInput").value = r.to;
+    document.querySelector("input[name=veh][value=tag]").checked = true;
+    switchTab("rider");
+    $("formError").classList.add("hidden");
+    updateEstimate();
+    $("yolculuk").scrollIntoView({ behavior: "smooth", block: "start" });
+    toast(r.from + " → " + r.to + " hattı hazır, Çağır Da Gelsun'a bas!");
+  }
+
+  function updateCalc() {
+    var km = parseInt($("calcKm").value, 10);
+    var pax = parseInt($("calcPax").value, 10);
+    var rain = $("calcRain").checked;
+    $("calcKmLabel").textContent = km + " km";
+    $("calcPaxLabel").textContent = pax + " kişi";
+    var html = "";
+    ["std", "tag", "yayla"].forEach(function (k) {
+      var f = fare(km, k, pax, rain);
+      var v = vehicles[k];
+      var emoji = k === "std" ? "🚕" : (k === "tag" ? "🚐" : "🛻");
+      var sub = f.shared ? "Kişi başı " + fmtTL(f.perPerson) : (pax > 1 ? "Kişi başı ~" + fmtTL(f.perPerson) : "Tek yolcu");
+      html += "<div class=\"flex items-center justify-between rounded-2xl bg-coal-900/80 border border-white/10 px-4 py-3\">" +
+        "<div class=\"flex items-center gap-3\"><span class=\"text-2xl\">" + emoji + "</span><div><div class=\"font-bold text-sm\">" + v.label + "</div><div class=\"text-xs text-gray-400\">" + sub + " · " + fmtTime(f.minutes) + "</div></div></div>" +
+        "<div class=\"text-xl font-black text-sun-400\">" + fmtTL(f.total) + "</div></div>";
+    });
+    $("calcResults").innerHTML = html;
+  }
+
+  function buildTestimonials() {
+    $("testiGrid").innerHTML = testimonials.map(function (t) {
+      var stars = "";
+      for (var i = 0; i < 5; i++) stars += i < t.stars ? "★" : "☆";
+      return "<figure class=\"rounded-3xl bg-coal-800 border border-white/10 p-6 flex flex-col\">" +
+        "<div class=\"text-sun-400 text-lg tracking-widest\">" + stars + "</div>" +
+        "<blockquote class=\"mt-3 text-gray-200 text-sm leading-relaxed flex-1\">“" + t.text + "”</blockquote>" +
+        "<figcaption class=\"mt-5 flex items-center gap-3\"><span class=\"w-10 h-10 rounded-full bg-tea-600 flex items-center justify-center font-black\">" + t.name.charAt(0) + "</span><span><span class=\"block font-bold text-sm\">" + t.name + "</span><span class=\"block text-xs text-gray-500\">" + t.where + "</span></span></figcaption>" +
+        "</figure>";
+    }).join("");
+  }
+
+  function renderRequests() {
+    var list = $("requestList");
+    $("reqCount").textContent = state.requests.length + " bekleyen";
+    if (!state.requests.length) {
+      list.innerHTML = "<div class=\"text-sm text-gray-500 text-center py-6 bg-gray-50 rounded-xl\">Yolcu gelsun diye bekleyirum, çay içelum biraz ☕</div>";
+      return;
+    }
+    list.innerHTML = state.requests.map(function (r) {
+      return "<div class=\"rounded-xl border-2 border-tea-200 bg-tea-50 p-3 animate-pop\">" +
+        "<div class=\"flex items-center justify-between\"><div class=\"font-bold\">" + r.name + " <span class=\"text-xs text-gray-500\">(" + r.pax + " kişi)</span></div><div class=\"font-black text-tea-700\">" + fmtTL(r.price) + "</div></div>" +
+        "<div class=\"text-xs text-gray-600 mt-0.5\">" + r.from + " → " + r.to + " · " + r.km + " km</div>" +
+        "<div class=\"mt-2 grid grid-cols-2 gap-2\"><button data-reject=\"" + r.id + "\" class=\"py-2 rounded-lg border border-gray-300 text-sm font-semibold text-gray-600 bg-white\">Geçsun</button><button data-accept=\"" + r.id + "\" class=\"py-2 rounded-lg bg-coal-900 text-sun-400 text-sm font-bold\">Alıyum!</button></div></div>";
+    }).join("");
+  }
+
+  function addRequest() {
+    if (!state.online || state.requests.length >= 4) return;
+    var from = placeByName($("drvFrom").value) || places[0];
+    var to = placeByName($("drvTo").value) || places[6];
+    if (from.name === to.name) to = places[(places.indexOf(from) + 1) % places.length];
+    var km = roadKm(from, to);
+    var pax = rand(1, Math.min(2, parseInt($("drvSeats").value, 10)));
+    var f = fare(km, "tag", pax, false);
+    state.reqId++;
+    state.requests.push({ id: state.reqId, name: pick(passengerNames), from: from.name, to: to.name, km: km, pax: pax, price: f.total });
+    renderRequests();
+  }
+
+  function updateFuel() {
+    var goal = 600;
+    var pct = Math.min(100, Math.round(state.earnings / goal * 100));
+    $("fuelBar").style.width = pct + "%";
+    $("fuelText").textContent = Math.min(state.earnings, goal) + " / " + goal + " ₺";
+    $("earnTotal").textContent = fmtTL(state.earnings);
+  }
+
+  function toggleOnline() {
+    state.online = !state.online;
+    var btn = $("goOnlineBtn");
+    if (state.online) {
+      if ($("drvFrom").value === $("drvTo").value) {
+        state.online = false;
+        toast("Çıkış ve varış aynı olmaz uşağum, birini değiştir.");
+        return;
+      }
+      btn.textContent = "Yoldan Çekil, Çay Molası ☕";
+      btn.className = "mt-4 w-full py-4 rounded-2xl bg-red-600 text-white font-black text-lg hover:bg-red-500 active:scale-[0.99] transition";
+      $("driverStatus").textContent = "Yoldayum, Yolcu Arıyorum 🚗";
+      $("requestsWrap").classList.remove("hidden");
+      $("driverHint").classList.add("hidden");
+      state.requests = [];
+      renderRequests();
+      setTimeout(addRequest, 1200);
+      clearInterval(state.reqTimer);
+      state.reqTimer = setInterval(addRequest, 5000);
+      toast("Yola çıktun! Yolcular seni görüyür 🛣️");
+    } else {
+      btn.textContent = "Yola Çık 🛣️";
+      btn.className = "mt-4 w-full py-4 rounded-2xl bg-coal-900 text-sun-400 font-black text-lg hover:bg-coal-800 active:scale-[0.99] transition";
+      $("driverStatus").textContent = "Arabam Boş Gezeyirum 😴";
+      $("requestsWrap").classList.add("hidden");
+      $("driverHint").classList.remove("hidden");
+      clearInterval(state.reqTimer);
+      state.requests = [];
+      toast("Çay molasındasun, yolcular bekleyecek.");
+    }
+  }
+
+  function handleRequestClick(e) {
+    var acc = e.target.closest("[data-accept]");
+    var rej = e.target.closest("[data-reject]");
+    if (acc) {
+      var id = parseInt(acc.getAttribute("data-accept"), 10);
+      var req = state.requests.filter(function (r) { return r.id === id; })[0];
+      if (req) {
+        state.earnings += Math.round(req.price * 0.9);
+        state.requests = state.requests.filter(function (r) { return r.id !== id; });
+        updateFuel();
+        renderRequests();
+        toast(req.name + " bindi, +" + Math.round(req.price * 0.9) + " ₺ cebe girdi!");
+        if (state.earnings >= 600 && !state.fuelDone) {
+          state.fuelDone = true;
+          showInfo("⛽", "Benzin Parası Çıktı!", "Bugünkü benzin masrafını çıkardun uşağum. Bundan sonrası kâr, çayı sen ısmarla.");
+        }
+      }
+    }
+    if (rej) {
+      var rid = parseInt(rej.getAttribute("data-reject"), 10);
+      state.requests = state.requests.filter(function (r) { return r.id !== rid; });
+      renderRequests();
+    }
+  }
+
+  function validatePlate(p) {
+    return /^(0[1-9]|[1-7][0-9]|8[01])\s?[A-ZÇĞİÖŞÜ]{1,3}\s?\d{2,4}$/i.test(p.trim());
+  }
+
+  function submitDriver(e) {
+    e.preventDefault();
+    var err = $("dError");
+    var name = $("dName").value.trim();
+    var plate = $("dPlate").value.trim();
+    var model = $("dModel").value.trim();
+    var msg = "";
+    if (name.length < 3) msg = "Adunu soyadunu yazman lazım uşağum.";
+    else if (!validatePlate(plate)) msg = "Plaka tutmadı. Şöyle yaz: 53 ABC 053";
+    else if (model.length < 3) msg = "Araç modelini de yaz, hangi araba olduğunu bilelum.";
+    else if (!$("dKvkk").checked) msg = "KVKK metnini onaylamadan kayıt olamazsun.";
+    if (msg) {
+      err.textContent = msg;
+      err.classList.remove("hidden");
+      err.classList.remove("animate-shake");
+      void err.offsetWidth;
+      err.classList.add("animate-shake");
+      return;
+    }
+    err.classList.add("hidden");
+    var first = name.split(" ")[0];
+    showInfo("🎉", "Kaydun Alındı " + first + "!", plate.toUpperCase() + " plakalı " + model + " için başvurun bize ulaştı. 24 saat içinde arayacağız, çayı demle.");
+    $("driverForm").reset();
+  }
+
+  function setAuthMode(mode) {
+    state.authMode = mode;
+    var login = mode === "login";
+    $("authTabLogin").className = "py-2 rounded-lg text-sm font-bold " + (login ? "bg-white shadow" : "text-gray-500");
+    $("authTabReg").className = "py-2 rounded-lg text-sm font-bold " + (login ? "text-gray-500" : "bg-white shadow");
+    $("authNameWrap").classList.toggle("hidden", login);
+    $("authTitle").textContent = login ? "Hoş Geldun Uşağum!" : "Aramıza Katıl Bakalum!";
+    $("authSub").textContent = login ? "Telefonunla gir, çay demlenirken hazır olursun." : "Bir dakkada kayıt ol, ilk yolculukta çay bizden.";
+    $("authSubmit").textContent = login ? "İçeri Gir" : "Kaydol Da Gel";
+    $("authError").classList.add("hidden");
+  }
+
+  function submitAuth(e) {
+    e.preventDefault();
+    var err = $("authError");
+    var phone = $("authPhone").value.replace(/\s/g, "");
+    var pass = $("authPass").value;
+    var name = $("authName").value.trim();
+    var msg = "";
+    if (state.authMode === "register" && name.length < 3) msg = "Adunu yazmadun uşağum.";
+    else if (!/^0?5\d{9}$/.test(phone)) msg = "Telefon numarası tutmadı. 05xx xxx xx xx şeklinde yaz.";
+    else if (pass.length < 4) msg = "Şifre en az 4 karakter olsun.";
+    if (msg) {
+      err.textContent = msg;
+      err.classList.remove("hidden");
+      err.classList.remove("animate-shake");
+      void err.offsetWidth;
+      err.classList.add("animate-shake");
+      return;
+    }
+    err.classList.add("hidden");
+    var display = state.authMode === "register" ? name.split(" ")[0] : "Hemşehri";
+    state.user = display;
+    $("authBtn").textContent = "Selam " + display + " 👋";
+    $("authBtnMobile").textContent = "Selam " + display + " 👋";
+    closeModal("authModal");
+    $("authForm").reset();
+    toast(state.authMode === "register" ? "Hoş geldun " + display + "! İlk çay bizden." : "Gel bakalum, çay demlendi!");
+  }
+
+  function animateCounters() {
+    var nodes = document.querySelectorAll("[data-count]");
+    nodes.forEach(function (n) {
+      var target = parseInt(n.getAttribute("data-count"), 10);
+      var cur = 0;
+      var step = Math.max(1, Math.round(target / 60));
+      var id = setInterval(function () {
+        cur += step;
+        if (cur >= target) {
+          cur = target;
+          clearInterval(id);
+        }
+        n.textContent = cur.toLocaleString("tr-TR") + "+";
+      }, 25);
+    });
+  }
+
+  function init() {
+    buildLists();
+    buildRoutes();
+    buildTestimonials();
+    updateCalc();
+    animateCounters();
+    renderRequests();
+    updateFuel();
+
+    $("fromInput").addEventListener("focus", function () { state.lastFocus = "from"; });
+    $("toInput").addEventListener("focus", function () { state.lastFocus = "to"; });
+    $("fromInput").addEventListener("input", function () { $("formError").classList.add("hidden"); updateEstimate(); });
+    $("toInput").addEventListener("input", function () { $("formError").classList.add("hidden"); updateEstimate(); });
+    $("fromInput").addEventListener("change", updateEstimate);
+    $("toInput").addEventListener("change", updateEstimate);
+
+    $("quickChips").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-place]");
+      if (b) setPlaceFromChip(b.getAttribute("data-place"));
+    });
+
+    $("swapBtn").addEventListener("click", function () {
+      var a = $("fromInput").value;
+      $("fromInput").value = $("toInput").value;
+      $("toInput").value = a;
+      updateEstimate();
+    });
+
+    document.querySelectorAll("input[name=veh]").forEach(function (r) {
+      r.addEventListener("change", updateEstimate);
+    });
+
+    $("paxMinus").addEventListener("click", function () {
+      if (state.pax > 1) { state.pax--; $("paxVal").textContent = state.pax; updateEstimate(); }
+    });
+    $("paxPlus").addEventListener("click", function () {
+      if (state.pax < 4) { state.pax++; $("paxVal").textContent = state.pax; updateEstimate(); }
+      else toast("Dört kişiden fazla sığmaz uşağum, araba lastik değil.");
+    });
+
+    $("tabRider").addEventListener("click", function () { switchTab("rider"); });
+    $("tabDriver").addEventListener("click", function () { switchTab("driver"); });
+
+    $("callBtn").addEventListener("click", startCall);
+    $("cancelSearch").addEventListener("click", cancelCall);
+    $("declineBtn").addEventListener("click", function () { cancelCall(); toast("Tamam uşağum, vazgeçtun. Başka zaman."); });
+    $("acceptBtn").addEventListener("click", acceptTrip);
+    $("doneBtn").addEventListener("click", function () { cancelCall(); showInfo("🍵", "İyi Yolculuklar!", "Varınca bir çay iç, şoföre de selam söyle. Puan vermeyi unutma uşağum."); });
+    $("callModal").addEventListener("click", function (e) { if (e.target === $("callModal")) cancelCall(); });
+
+    $("routeGrid").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-route]");
+      if (b) applyRoute(parseInt(b.getAttribute("data-route"), 10));
+    });
+
+    $("calcKm").addEventListener("input", updateCalc);
+    $("calcPax").addEventListener("input", updateCalc);
+    $("calcRain").addEventListener("change", updateCalc);
+
+    $("goOnlineBtn").addEventListener("click", toggleOnline);
+    $("requestList").addEventListener("click", handleRequestClick);
+
+    $("driverForm").addEventListener("submit", submitDriver);
+    $("dPlate").addEventListener("input", function () { this.value = this.value.toUpperCase(); });
+
+    function openAuth() { setAuthMode("login"); openModal("authModal"); }
+    $("authBtn").addEventListener("click", openAuth);
+    $("authBtnMobile").addEventListener("click", function () { $("mobileMenu").classList.add("hidden"); openAuth(); });
+    $("authClose").addEventListener("click", function () { closeModal("authModal"); });
+    $("authTabLogin").addEventListener("click", function () { setAuthMode("login"); });
+    $("authTabReg").addEventListener("click", function () { setAuthMode("register"); });
+    $("authForm").addEventListener("submit", submitAuth);
+    $("authModal").addEventListener("click", function (e) { if (e.target === $("authModal")) closeModal("authModal"); });
+
+    $("infoClose").addEventListener("click", function () { closeModal("infoModal"); });
+    $("infoModal").addEventListener("click", function (e) { if (e.target === $("infoModal")) closeModal("infoModal"); });
+
+    $("menuBtn").addEventListener("click", function () { $("mobileMenu").classList.toggle("hidden"); });
+    document.querySelectorAll(".mobile-link").forEach(function (l) {
+      l.addEventListener("click", function () { $("mobileMenu").classList.add("hidden"); });
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        if (!$("callModal").classList.contains("hidden")) cancelCall();
+        closeModal("authModal");
+        closeModal("infoModal");
+      }
+    });
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
